@@ -23,25 +23,24 @@ function openModalUpdateUser(idUser) {
 function getUserData(idUser) {
 
     userId = idUser;    
-    fetch("Admin/GetUserData/" + userId)
-        .then(function (response) {
-            if (!response.ok) {
-                throw new Error(response.statusText);
-            }
-            return response.json();
-        })
-        .then(function (userData) {
+    functionFetch('Admin/GetUserData/' + userId, {}, 'GET', successGetUserData);
+}
 
-            var userForm = document.getElementById("editUserForm");
-            userForm.elements["Name"].value = userData.name;
-            userForm.elements["LastName"].value = userData.lastName;
-            userForm.elements["Phone"].value = userData.phone;
-            userForm.elements["Email"].value = userData.email;
-            userForm.elements["Role"].value = userData.idRole;
-        })
-        .catch(function (error) {
-            console.error(error);
-        });
+function successGetUserData(data) {
+    if (data.success) {
+
+        var userData = data.data;
+        var userForm = document.getElementById("editUserForm");
+
+        userForm.elements["Name"].value = userData.name;
+        userForm.elements["LastName"].value = userData.lastName;
+        userForm.elements["Phone"].value = userData.phone;
+        userForm.elements["Email"].value = userData.email;
+        userForm.elements["Role"].value = userData.idRole;
+    }
+    else {
+        alertAnimatedCustom(data.message, 'error', 'An error occurred');
+    }
 }
 
 function updateUser() {
@@ -69,57 +68,49 @@ function updateUser() {
 }
 
 function updateUserData(user) {
-
-    var requestOptions = {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json', 
-        },
-        body: JSON.stringify(user)
-    };
-
-    fetch("Admin/UpdateUser/", requestOptions)
-        .then(function (response) {
-            if (!response.ok) {
-                throw new Error(response.statusText);    
-            }
-            return response.json();
-            
-        })
-        .then(function (userData) {
-
-            modalUpdateUserInitialize.hide();
-
-            alertAnimatedCustom(userData.message, 'success', 'User updated');
-
-
-        })
-        .catch(function (error) {
-            console.error(error);
-        });
-
+    functionFetch('Admin/UpdateUser/', user, 'PUT', successUpdateUserData);
 }
 
-function alertBasicCustom(message, icon, title) {
-    swal.fire({
-        icon: icon,
-        title: title,
-        text: message
-    });
+function successUpdateUserData(data) {
+
+    if (data.success) {
+
+        modalUpdateUserInitialize.hide();
+        alertAnimatedCustom(data.message, 'success', 'User updated');
+
+        var dataUserUpdated = data.data;
+
+        var objUser = {
+            IdUser: dataUserUpdated.idUser,
+            LastName: dataUserUpdated.lastName,
+            Name: dataUserUpdated.name,
+            Email: dataUserUpdated.email,
+            Phone: dataUserUpdated.phone,
+            RoleName: dataUserUpdated.roleName,
+            DateAdmision: dataUserUpdated.dateAdmision,
+            InactiveDate: dataUserUpdated.inactiveDate,
+            Status: dataUserUpdated.status,
+        };
+
+        updateRowTableUser(tblUsers, dataUserUpdated.idUser, objUser);
+    }
+    else {
+        alertAnimatedCustom(data.message, 'error', 'An error occurred');
+    }
 }
 
-function alertAnimatedCustom(message, icon = 'success', title = 'Alert') {
-    Swal.fire({
-        title: title,
-        text: message,
-        icon: icon,
-        showClass: {
-            popup: 'animate__animated animate__fadeInDown'
-        },
-        hideClass: {
-            popup: 'animate__animated animate__fadeOutUp'
-        }
-    })
+function updateRowTableUser(tbl, valueSearch, valueUpdated) {
+
+    var row = tbl.row('tr[data-id="' + valueSearch + '"]');
+
+    if (row) {
+        tbl.row('tr[data-id="' + valueSearch + '"]').data(valueUpdated).draw();
+    }
+    else {
+        alertAnimatedCustom('Row not found', 'error', 'An error occurred');        
+    }
 }
+
+
 
 

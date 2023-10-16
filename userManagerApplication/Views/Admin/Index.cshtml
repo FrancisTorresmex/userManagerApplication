@@ -24,9 +24,10 @@
                     </tr>
                 </thead>
                 <tbody id="tbodyUser">
-                    <tr>
-                        @foreach (var user in Model)
-                        {
+                    
+                    @foreach (var user in Model)
+                    {
+                        <tr data-id="@user.IdUser">
                             <td>@user.IdUser</td>
                             <td>@user.Name</td>
                             <td>@user.LastName</td>
@@ -35,15 +36,14 @@
                             <td>@user.RoleName</td>
                             <td>@user.DateAdmision</td>
                             <td>@user.InactiveDate</td>
-                            <td>@user.Status</td>
+                            <td id="statusTd">@user.Status</td>                            
                             <td>
-                                <button type="button" class="btn btn-primary" data-id="@user.IdUser" id="btnUpdateUser" onclick="openModalUpdateUser(@user.IdUser)">Edit</button>
-                                <button class="btn btn-info">@((user.Status == "Inactive") ? "Inactive" : "Active")</button>
-                                @*<button class="btn btn-primary">@((user.Status == false) ? "Inactive" : "Active")</button>*@
+                                @*<button type="button" class="btn btn-primary" data-id="@user.IdUser" id="btnUpdateUser" onclick="openModalUpdateUser(@user.IdUser)">Edit</button>
+                                <button onclick="inactiveActiveUser(@user.IdUser, @user.Status)" class="btn btn-info" id="btnInacivateUser">@((user.Status == "Inactive") ? "Inactive" : "Active")</button>*@
                             </td>
-                        }
+                        </tr>
 
-                    </tr>
+                    }
 
                 </tbody>
             </table>

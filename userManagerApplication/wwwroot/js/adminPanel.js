@@ -1,5 +1,5 @@
 ﻿let objectUserData = null;
-
+let tblUsers = null;
 
 $(document).ready(function () {
     createTableUsers();
@@ -7,7 +7,7 @@ $(document).ready(function () {
 });
 
 function createTableUsers() {
-    $("#userTable").dataTable({        
+    tblUsers = $("#userTable").DataTable({        
         "paging": true,
         "destroy": true,
         "order": [[0, 'asc'], [1, 'asc']],
@@ -17,33 +17,60 @@ function createTableUsers() {
         "responsive": true,
         "autoWidth": false,
         "processing": true,
-
+        columns: [
+            { data: 'IdUser' },
+            { data: 'Name' },
+            { data: 'LastName' },
+            { data: 'Email' },
+            { data: 'Phone' },
+            { data: 'RoleName' },
+            { data: 'DateAdmision' },
+            { data: 'InactiveDate' },
+            { data: 'Status' },
+            {
+                data: null,
+                render: function (data, type, full, meta) {
+                    var userId = data.IdUser;
+                    var userStatus = data.Status;
+                    return '<button type="button" class="btn btn-primary" data-id="' + userId + '" id="btnUpdateUser" onclick="openModalUpdateUser(' + userId + ')">Edit</button>' +
+                        '<button class="btn btn-info" id="btnInacivateUser" onclick="inactiveActiveUser(\'' + userId + '\', \'' + userStatus + '\')">' + (data.Status == "Inactive" ? "Inactive" : "Active") + '</button>';
+                }
+            }
+        ]
     });
 }
 
-//function getUserData() {
+function inactiveActiveUser(idUser, status) {
 
-//    var btnUpdateUser = document.getElementById("btnUpdateUser");
-//    var userId = btnUpdateUser.getAttribute("data-id");
+    var model = {
+        IdUser: idUser,
+        Status: status
+    };
 
-//    // Realizar una solicitud Ajax al controlador MVC para obtener datos del usuario
-//    fetch("Admin/GetUserData/" + userId)
-//        .then(function (response) {
-//            if (response.ok) {
-//                return response.json();
-//            }
-//            throw new Error("Error al obtener datos del usuario");
-//        })
-//        .then(function (userData) {
-            
-//            console.log(userData);
+    functionFetch("Admin/InactiveUser/", model, "PUT", successInactiveActiveUser)
+}
 
-            
+function successInactiveActiveUser(data) {
 
-//        })
-//        .catch(function (error) {
-//            console.error(error);
-//        });
+    if (data.success) {
 
-//}
+        //update rows and cells
+        //btn status
+        var btn = document.getElementById("btnInacivateUser");
+        var row = tblUsers.row(btn.closest('tr'));
+        var cellBtn = tblUsers.cell(row, 8);
+        var currentText = btn.textContent;
+        var newText = (currentText === "Inactive" ? "Active" : "Inactive");
+        btn.textContent = newText;
+        cellBtn.data(newText).draw();
 
+        //tr status text
+        var statusTxt = document.getElementById("statusTd");
+        var rowStatus = tblUsers.row(statusTxt.closest('tr'));
+        var cellStatus = tblUsers.cell(rowStatus, 8);
+        statusTxt.textContent = newText;
+        cellStatus.data(newText).draw();
+    }
+    else
+        alertAnimatedCustom(data.message, 'error', 'An error occurred');
+}
