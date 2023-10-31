@@ -1,12 +1,61 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using userManagerAplication.Models.Data;
+using userManagerApplication.Indentity;
 using userManagerApplication.Repository.Entities;
 using userManagerApplication.Repository.Interfaces;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+
+
+//Autorización y JWT
+string keyJWT = builder.Configuration["keyJWT"];
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy(IdentityData.AdminUserPolicyName, p => 
+    p.RequireClaim(IdentityData.AdminUserClaimName, "true"));
+});
+
+builder.Services.AddAuthentication("Bearer").AddJwtBearer(options =>
+{
+    //Decir a jwt que en lugar de enviar token por header, sera por cookie
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            context.Token = context.Request.Cookies["Token"]; //nombre de cookie
+            return Task.CompletedTask;
+        }
+    };
+
+    //JWT
+    var signingkey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(keyJWT));
+    var signingCredentials = new SigningCredentials(signingkey, SecurityAlgorithms.HmacSha256Signature);
+
+    options.RequireHttpsMetadata = false;
+
+    //Parametros del token
+    options.TokenValidationParameters = new TokenValidationParameters()
+    {
+        ValidateAudience = false,
+        ValidateIssuer = false,
+        IssuerSigningKey = signingkey
+    };
+});
+
+//Sesión de usuario (el tiempo que se mantiene viva la sesión con inactividad)
+//builder.Services.AddSession(options =>
+//{
+//    options.IdleTimeout = TimeSpan.FromMinutes(20); //20 min de inactividad permitidos
+//});
 
 //inyección conexión bd y contexto
 builder.Services.AddDbContext<UserManagerAplicationContext>(options =>
@@ -33,10 +82,12 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+//app.UseSession();
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Home}/{action=Index}");/*.RequireAuthorization();*/ //.RequireAuthorization() para complementar el jwt
 
 app.Run();

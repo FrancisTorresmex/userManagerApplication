@@ -1,4 +1,6 @@
-﻿namespace userManagerApplication.Models
+﻿using userManagerAplication.Models.Data;
+
+namespace userManagerApplication.Models
 {
     public class UserModel
     {
@@ -22,5 +24,6 @@
 
         public int? IdRole { get; set; }
         public string? RoleName { get; set; }
+        public List<UsersRole> AllRoleLst { get; set; }
     }
 }

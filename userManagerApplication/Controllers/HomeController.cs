@@ -18,7 +18,7 @@ namespace userManagerApplication.Controllers
         }
 
         public IActionResult Index()
-        {
+        {            
             IEnumerable<UsersRole> users = _repository.GetAll();
             return View("Index", users);
         }

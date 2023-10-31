@@ -1,0 +1,30 @@
+﻿@{
+    ViewData["Title"] = "Login";
+}
+
+<form id="userLogin" asp-action="Login" asp-controller="Access" method="post">
+
+    <div class="col-12">
+        <label id="titleUserForm">Login</label>
+        <div class="form-group">
+            <label for="Email">Email</label>
+            <input name="Email" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="Password">Password</label>
+            <input name="Password" class="form-control" required>
+        </div>
+        <hr />
+    </div>
+
+       
+
+</form>
+
+<div class="col-12">
+        @*<input class="btn btn-success" type="submit" value="send">*@
+        <button class="btn btn-primary" onclick="login()">Send</button>
+    </div> 
+
+
+<script src="~/js/access.js"></script>

@@ -1,4 +1,5 @@
 ﻿
+using userManagerAplication.Models.Data;
 using userManagerApplication.Models;
 
 
@@ -8,6 +9,7 @@ namespace userManagerApplication.Repository.Interfaces
     {
         List<UserModel> GetAllUserAndRoles();
         UserModel GetUserAndRol(int idUser);
-        bool DeactivateUser(int idUser, string isActivate);
+        UserModel FindByEmail(string email);
+        bool DeactivateUser(int idUser, string isActivate);        
     }
 }

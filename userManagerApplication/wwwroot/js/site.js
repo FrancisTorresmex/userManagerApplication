@@ -13,6 +13,7 @@ function functionFetch(url, data, methodType, funcSuccess) { //funcSuccess = ret
             method: methodType,
             headers: {
                 'Content-Type': 'application/json',
+                //'Authorization': 'Bearer ' + token
             },
             body: JSON.stringify(data)
         };
@@ -34,6 +35,40 @@ function functionFetch(url, data, methodType, funcSuccess) { //funcSuccess = ret
         .catch(function (error) {
             alertAnimatedCustom(error, 'error', 'An error occurred');
         });
+}
+
+//reusable: update datatable row
+//isObject = true if you send an entire object, or false if you only want to update a part of that object
+function updateRowDataTable(tbl, valueSearch, valueUpdated, updateAllObjectBool) {
+
+    var row = tbl.row('tr[data-id="' + valueSearch + '"]');
+
+    if (row) {
+
+        if (updateAllObjectBool) {
+            tbl.row('tr[data-id="' + valueSearch + '"]').data(valueUpdated).draw();
+        }
+        else {
+            var rowData = row.data();
+            for(var key in valueUpdated) {
+                if (rowData.hasOwnProperty(key)) {
+                    rowData[key] = valueUpdated[key];
+                }
+            }
+            row.data(rowData).draw();
+        }
+
+        
+        
+    }
+    else {
+        alertAnimatedCustom('Row not found', 'error', 'An error occurred');
+    }
+}
+
+//reusable: update all datatable
+function updateDataTable(tbl, data) {
+    tbl.api().clear().rows.add(data).draw();
 }
 
 //Alerts sweet alerts: Basic

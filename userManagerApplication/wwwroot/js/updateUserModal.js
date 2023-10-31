@@ -1,5 +1,4 @@
 ﻿let userId = 0;
-let modalUpdateUserInitialize = null;
 
 document.addEventListener("DOMContentLoaded", function () {
     //var updateUserModal = document.getElementById("updateUserModal");
@@ -14,16 +13,37 @@ document.addEventListener("DOMContentLoaded", function () {
     modalUpdateUserInitialize = new bootstrap.Modal(modalUpdateUser);
 });
 
-function openModalUpdateUser(idUser) {    
-
+function openModalUpdateUser(idUser) {        
     modalUpdateUserInitialize.show();
     getUserData(idUser);
+    getAllRoles();
 }
+
+function getAllRoles() {
+    functionFetch('/Roles/GetAllRoles/', {}, 'GET', successGetAllRoles);
+}
+
+function successGetAllRoles(data) {
+    if (data.success) {
+        let selectRoles = document.getElementById("selRoleUser");
+
+        for (var i = 0; i < data.data.length; i++) {            
+            var option = document.createElement('option');
+            option.value = data.data[i].idRole; 
+            option.text = data.data[i].name; 
+            selectRoles.appendChild(option);
+        }
+
+    }
+    else
+        alertAnimatedCustom(data.message, 'error', 'An error occurred');
+}
+
 
 function getUserData(idUser) {
 
     userId = idUser;    
-    functionFetch('Admin/GetUserData/' + userId, {}, 'GET', successGetUserData);
+    functionFetch("/Admin/GetUserData/?id=" + userId, {}, "GET", successGetUserData);
 }
 
 function successGetUserData(data) {
@@ -63,12 +83,16 @@ function updateUser() {
         IdRole: role
     };
 
-    updateUserData(user);
+    if (userId == 0) //add user
+        addUserData(user);
+    else
+        updateUserData(user);
+    
 
 }
 
 function updateUserData(user) {
-    functionFetch('Admin/UpdateUser/', user, 'PUT', successUpdateUserData);
+    functionFetch('/Admin/UpdateUser/', user, 'PUT', successUpdateUserData);
 }
 
 function successUpdateUserData(data) {
@@ -92,22 +116,47 @@ function successUpdateUserData(data) {
             Status: dataUserUpdated.status,
         };
 
-        updateRowTableUser(tblUsers, dataUserUpdated.idUser, objUser);
+        updateRowDataTable(tblUsers, dataUserUpdated.idUser, objUser, true);
     }
     else {
         alertAnimatedCustom(data.message, 'error', 'An error occurred');
     }
 }
 
-function updateRowTableUser(tbl, valueSearch, valueUpdated) {
+//Add new user
+function addUserData(user) {
+    functionFetch('/Admin/AddUser/', user, 'POST', successAddUserData);
+}
 
-    var row = tbl.row('tr[data-id="' + valueSearch + '"]');
+function successAddUserData(data) {
+    if (data.success) {
 
-    if (row) {
-        tbl.row('tr[data-id="' + valueSearch + '"]').data(valueUpdated).draw();
+        modalUpdateUserInitialize.hide();
+        alertAnimatedCustom(data.message, 'success', 'User created successfully');
+
+        var dataUserCreated = data.data;
+
+        //get rol name local
+        let rolTemp = document.getElementById("selRoleUser");
+        let selectedIndex = rolTemp.selectedIndex;
+        let rolrolNameTemp = rolTemp.options[selectedIndex].text;;
+
+        var objUser = {
+            IdUser: dataUserCreated.idUser,
+            LastName: dataUserCreated.lastName,
+            Name: dataUserCreated.name,
+            Email: dataUserCreated.email,
+            Phone: dataUserCreated.phone,
+            RoleName: rolrolNameTemp,
+            DateAdmision: dataUserCreated.dateAdmision,
+            InactiveDate: dataUserCreated.inactiveDate,
+            Status: dataUserCreated.status,
+        };
+
+        tblUsers.row.add(objUser).draw(false);
     }
     else {
-        alertAnimatedCustom('Row not found', 'error', 'An error occurred');        
+        alertAnimatedCustom(data.message, 'error', 'An error occurred');
     }
 }
 

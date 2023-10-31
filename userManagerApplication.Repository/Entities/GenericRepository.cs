@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using userManagerAplication.Models.Data;
@@ -43,6 +44,11 @@ namespace userManagerApplication.Repository.Entities
         {
 
             return _dbSet.ToList();
+        }
+
+        public TEntity Find(Expression<Func<TEntity, bool>> filter)
+        {
+            return _dbSet.FirstOrDefault(filter);
         }
 
         public void Update(TEntity data)

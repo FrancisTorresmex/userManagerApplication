@@ -1,6 +1,10 @@
 ﻿using Azure;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using System.Data;
 using userManagerAplication.Models.Data;
+using userManagerApplication.Indentity;
 using userManagerApplication.Models;
 using userManagerApplication.Repository.Interfaces;
 
@@ -9,17 +13,65 @@ namespace userManagerApplication.Controllers
     public class AdminController : Controller
     {
         private readonly IUsersRepository<User> _repository;
-        public AdminController(IUsersRepository<User> repository) 
+        private readonly IConfiguration _configuration;
+
+        public AdminController(IUsersRepository<User> repository, IConfiguration configuration) 
         {
+            _configuration = configuration;
             _repository = repository;
         }
-
+        
         public IActionResult Index()
         {
-            List<UserModel> users = _repository.GetAllUserAndRoles();            
-            return View("Index", users);
+
+            //var token = HttpContext.Session.GetString("Token"); //Se descarta sesión por cookie
+            string token = HttpContext.Request.Cookies["Token"];
+
+            if (token == null)
+                return RedirectToAction("Index", "Access");
+
+            if (ValidateToken(token)) 
+            {
+                List<UserModel> users = _repository.GetAllUserAndRoles();
+                return View(users);
+            }
+            else
+            {
+                return RedirectToAction("Index", "Access");
+            }
+
         }
 
+
+
+        public bool ValidateToken(string token)
+        {
+            if (!string.IsNullOrEmpty(token))
+            {
+                // Verifica y decodifica el token
+                var tokenHelper = new TokenHelper(_configuration);
+                var tokenClaims = tokenHelper.ValidateToken(token);
+
+                if (tokenClaims == null)
+                {
+                    return false;
+                }
+
+                // Verifica si el token contiene el reclamo de rol "Admin"
+                if (!tokenClaims.Claims.Any(claim => claim.Type == "Admin" && claim.Value == "true"))
+                {
+                    // Si el usuario no tiene el rol "Admin", redirige al usuario a una página de acceso denegado u otra acción apropiada.
+                    return false;
+                }
+                return true;
+            }
+            else
+                return false;
+
+
+        }
+
+        [Authorize(Policy = IdentityData.AdminUserPolicyName)]
         [HttpGet]
         public IActionResult GetUserData(int id)
         {
@@ -28,10 +80,9 @@ namespace userManagerApplication.Controllers
             {
                 var user = _repository.Get(id);
                 if (user != null)
-                {
-                    response.Data = user;
-                    response.Message = "Data updated correctly";
-                    response.Success = true;
+                {                                  
+                    response.Data = user;                    
+                    response.Success = true;                    
                 }
                 else
                 {
@@ -51,6 +102,7 @@ namespace userManagerApplication.Controllers
             return Json(response);
         }
 
+        [Authorize(Policy = IdentityData.AdminUserPolicyName)]
         [HttpPut]
         public IActionResult UpdateUser([FromBody]UserModel user)
         {
@@ -91,6 +143,7 @@ namespace userManagerApplication.Controllers
 
         }
 
+        [Authorize(Policy = IdentityData.AdminUserPolicyName)]
         [HttpPut]
         public IActionResult InactiveUser([FromBody] InactiveUserModel model)
         {
@@ -100,6 +153,53 @@ namespace userManagerApplication.Controllers
                 _repository.DeactivateUser(model.IdUser, model.Status);
                 _repository.Save();
                 response.Success = true;
+            }
+            catch (Exception ex)
+            {
+                response.Error = ex.Message;
+                response.Message = "An error occurred";
+                response.Success = false;
+            }
+
+            return Json(response);
+        }
+
+        [Authorize(Policy = IdentityData.AdminUserPolicyName)]
+        [HttpPost]
+        public IActionResult AddUser([FromBody] UserModel model)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                if (model != null)
+                {
+                    var user = new User 
+                    { 
+                        DateAdmision = DateTime.Now,
+                        Email = model.Email,
+                        InactiveDate = null,
+                        IdRole = model.IdRole,
+                        Name = model.Name,
+                        LastName = model.LastName,
+                        Password = model.Password,
+                        Phone = model.Phone,
+                        Status = true
+                    };
+                    _repository.Add(user);
+                    _repository.Save();
+
+                    response.Data = user;
+                    response.Message = "User created successfully";
+                    response.Success = true;
+                }
+                else
+                {
+                    response.Error = "An error occurred when creating the user. Empty parameter";
+                    response.Message = "An error occurred";
+                    response.Success = false;
+                }
+
+               
             }
             catch (Exception ex)
             {

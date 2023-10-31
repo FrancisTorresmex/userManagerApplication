@@ -3,6 +3,7 @@ using userManagerApplication.Repository.Interfaces;
 using userManagerAplication.Models.Data;
 using userManagerApplication.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 
 namespace userManagerApplication.Repository.Entities
 {
@@ -20,7 +21,7 @@ namespace userManagerApplication.Repository.Entities
         public UserModel GetUserAndRol(int idUser)
         {
             UserModel userModel = null;
-            var user = _dbSet.Find(idUser);
+            var user = _dbSet.Include(u => u.IdRoleNavigation).FirstOrDefault(u => u.IdUser == idUser);
 
             if (user != null)
             {
@@ -34,7 +35,7 @@ namespace userManagerApplication.Repository.Entities
                     RoleName = user.IdRoleNavigation == null ? "No role" : user.IdRoleNavigation.Name,
                     Status = user.Status == true ? "Active" : "Inactive",
                     DateAdmision = user.DateAdmision,
-                    InactiveDate = user.InactiveDate
+                    InactiveDate = user.InactiveDate,
                 };
             }            
 
@@ -57,6 +58,31 @@ namespace userManagerApplication.Repository.Entities
             }).ToList();
 
             return users;
+        }
+
+        public UserModel FindByEmail(string email)
+        {
+            UserModel userModel = null;
+            var user = _dbSet.Include(u => u.IdRoleNavigation).FirstOrDefault(u => u.Email == email);
+
+            if (user != null)
+            {
+                userModel = new UserModel
+                {
+                    IdUser = user.IdUser,
+                    Password = user.Password,
+                    Email = user.Email,
+                    LastName = user.LastName,
+                    Name = user.Name,
+                    Phone = user.Phone == null ? "No phone" : user.Phone,
+                    RoleName = user.IdRoleNavigation == null ? "No role" : user.IdRoleNavigation.Name,
+                    Status = user.Status == true ? "Active" : "Inactive",
+                    DateAdmision = user.DateAdmision,
+                    InactiveDate = user.InactiveDate,
+                };
+            }
+
+            return userModel;
         }
 
         //activate and deactivate user
