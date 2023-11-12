@@ -12,4 +12,8 @@ public partial class Screen
     public bool? Status { get; set; }
 
     public DateTime? CreationDate { get; set; }
+
+    public string? Url { get; set; }
+
+    public virtual ICollection<AccessScreen> AccessScreens { get; set; } = new List<AccessScreen>();
 }

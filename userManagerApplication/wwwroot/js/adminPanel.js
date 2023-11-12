@@ -5,7 +5,6 @@ let idUserTemp = 0;
 
 $(document).ready(function () {
     createTableUsers();
-
 });
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -34,14 +33,14 @@ function createTableUsers() {
             { data: 'RoleName' },
             { data: 'DateAdmision' },
             { data: 'InactiveDate' },
-            { data: 'Status' },
+            { data: 'StatusName' },
             {
                 data: null,
                 render: function (data, type, full, meta) {
                     var userId = data.IdUser;
-                    var userStatus = data.Status;
+                    var userStatus = data.statusName;
                     return '<button type="button" class="btn btn-primary" data-id="' + userId + '" id="btnUpdateUser" onclick="openModalUpdateUser(' + userId + ')">Edit</button>' +
-                        '<button class="btn btn-info" data-id="' + userId + '"  id="btnInacivateUser' + userId + '" onclick="inactiveActiveUser(\'' + userId + '\', \'' + userStatus + '\')">' + (data.Status == "Inactive" ? "Active" : "Inactive") + '</button>';
+                        '<button class="btn btn-info" data-id="' + userId + '"  id="btnInacivateUser' + userId + '" onclick="inactiveActiveUser(\'' + userId + '\', \'' + userStatus + '\')">' + (data.StatusName == "Inactive" ? "Active" : "Inactive") + '</button>';
                 }
             }
         ]
@@ -52,6 +51,7 @@ function createTableUsers() {
 document.getElementById("btnCreateUser").addEventListener('click', function () {
     userId = 0;
     modalUpdateUserInitialize.show();
+    getAllRoles();
     document.getElementById('editUserForm').reset();
 });
 
@@ -76,9 +76,9 @@ function successInactiveActiveUser(data) {
         var rowData = row.data();
 
         var btn = document.getElementById("btnInacivateUser" + idUserTemp);
-        btn.textContent = rowData.Status === "Inactive" ? "Active" : "Inactive";
+        btn.textContent = rowData.StatusName === "Inactive" ? "Active" : "Inactive";
 
-        var status = (rowData.Status === "Inactive" ? "Active" : "Inactive");
+        var status = (rowData.StatusName === "Inactive" ? "Active" : "Inactive");
         var objRows = {
             Status: status
         };

@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\userManagerAplication.Models\userManagerAplication.Models.csproj" />
+    <ProjectReference Include="..\userManagerApplication.Helper\userManagerApplication.Helper.csproj" />
     <ProjectReference Include="..\userManagerApplication.Repository\userManagerApplication.Repository.csproj" />
   </ItemGroup>
 

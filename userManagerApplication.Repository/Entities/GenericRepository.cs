@@ -26,6 +26,12 @@ namespace userManagerApplication.Repository.Entities
             _dbSet.Add(data);
         }
 
+        public void AddList(IEnumerable<TEntity> data)
+        {
+            _dbSet.AddRange(data);
+            _context.SaveChanges();
+        }
+
         public void Delete(int id)
         {
             var dataToDelete = _dbSet.Find(id);
@@ -33,6 +39,12 @@ namespace userManagerApplication.Repository.Entities
             {
                 _dbSet.Remove(dataToDelete);
             }
+        }
+
+        public void DeleteList(IEnumerable<TEntity> dataList)
+        {
+            _dbSet.RemoveRange(dataList);
+            _context.SaveChanges();
         }
 
         public TEntity Get(int id)
@@ -46,9 +58,13 @@ namespace userManagerApplication.Repository.Entities
             return _dbSet.ToList();
         }
 
-        public TEntity Find(Expression<Func<TEntity, bool>> filter)
+        public IEnumerable<TEntity> Find(Expression<Func<TEntity, bool>> filter, string? include)
         {
-            return _dbSet.FirstOrDefault(filter);
+            if (include == null)
+                return _dbSet.Where(filter).ToList();
+            else
+                return _dbSet.Include(include).Where(filter).ToList();
+
         }
 
         public void Update(TEntity data)
@@ -56,6 +72,13 @@ namespace userManagerApplication.Repository.Entities
             _dbSet.Attach(data);
             _context.Entry(data).State = EntityState.Modified;
         }
+
+        public void UpdateList(IEnumerable<TEntity> data)
+        {
+            _dbSet.UpdateRange(data);
+            _context.Entry(data).State = EntityState.Modified;
+        }
+
 
         public void Save()
         {

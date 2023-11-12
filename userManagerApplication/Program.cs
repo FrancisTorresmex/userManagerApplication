@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using userManagerAplication.Models.Data;
-using userManagerApplication.Indentity;
 using userManagerApplication.Repository.Entities;
 using userManagerApplication.Repository.Interfaces;
 
@@ -20,8 +20,23 @@ builder.Services.AddControllersWithViews();
 string keyJWT = builder.Configuration["keyJWT"];
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy(IdentityData.AdminUserPolicyName, p => 
-    p.RequireClaim(IdentityData.AdminUserClaimName, "true"));
+    //Policy custom
+    //options.AddPolicy(IdentityData.AdminUserPolicyName, p =>
+    //p.RequireClaim(IdentityData.AdminUserClaimName, "true"));
+
+    //options.AddPolicy(IdentityData.UserPolicyName, p =>
+    //p.RequireClaim(IdentityData.UserClaimName, "true"));
+
+    options.AddPolicy("AdminPolicy", policy => policy.RequireAssertion(context =>
+    {
+        return context.User.HasClaim(c => c.Type == "Admin" && c.Value == "true");
+    }));
+
+    options.AddPolicy("UserPolicy", policy => policy.RequireAssertion(context =>
+    {
+        return context.User.HasClaim(c => c.Type == "Admin" && c.Value == "false");
+    }));
+
 });
 
 builder.Services.AddAuthentication("Bearer").AddJwtBearer(options =>
@@ -62,6 +77,7 @@ builder.Services.AddDbContext<UserManagerAplicationContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("ConnectionSqlServer"));
 });
+
 
 //inyección de repository
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>)); //forma generica

@@ -16,7 +16,9 @@ namespace userManagerApplication.Models
 
         public string? Password { get; set; }
 
-        public string? Status { get; set; }
+        public string? StatusName { get; set; }
+
+        public bool Status { get; set; }
 
         public DateTime? DateAdmision { get; set; }
 

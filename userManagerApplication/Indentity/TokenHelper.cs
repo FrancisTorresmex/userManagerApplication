@@ -39,11 +39,67 @@ namespace userManagerApplication.Indentity
 
                 return principal;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // Si hay un error al validar el token, devuelve null o realiza otro manejo de errores según tus necesidades.
+                
                 return null;
             }
         }
+
+        //Validate that the token is valid
+        public bool ValidateTokenAccess(string token)
+        {
+            if (!string.IsNullOrEmpty(token))
+            {
+                // Verifica y decodifica el token
+                var tokenClaims = ValidateToken(token);
+
+                if (tokenClaims == null)
+                {
+                    return false;
+                }
+
+                // Verifica si el token contiene el reclamo de rol "Admin"
+                //if (!tokenClaims.Claims.Any(claim => claim.Type == "Admin" /*&& claim.Value == "true"*/))
+                //{
+
+                //    // Si el usuario no tiene el rol "Admin", redirige al usuario a una página de acceso denegado u otra acción apropiada.
+                //    return false;
+                //}
+                return true;
+            }
+            else
+                return false;
+
+
+        }
+
+        //public bool ValidateTokenAccess(string token)
+        //{
+        //    if (!string.IsNullOrEmpty(token))
+        //    {
+        //        // Verifica y decodifica el token
+        //        var tokenHelper = new TokenHelper(_configuration);
+        //        var tokenClaims = tokenHelper.ValidateToken(token);
+
+        //        if (tokenClaims == null)
+        //        {
+        //            return false;
+        //        }
+
+        //        // Verifica si el token contiene el reclamo de rol "Admin"
+        //        if (!tokenClaims.Claims.Any(claim => claim.Type == "Admin" && claim.Value == "true"))
+        //        {
+        //            // Si el usuario no tiene el rol "Admin", redirige al usuario a una página de acceso denegado u otra acción apropiada.
+        //            return false;
+        //        }
+        //        return true;
+        //    }
+        //    else
+        //        return false;
+
+
+        //}
+
     }
 }

@@ -10,6 +10,9 @@ using userManagerApplication.Repository.Interfaces;
 
 namespace userManagerApplication.Controllers
 {
+    //[Authorize(Policy = IdentityData.AdminUserPolicyName)]
+    [Authorize(Policy = "AdminPolicy")]
+
     public class AdminController : Controller
     {
         private readonly IUsersRepository<User> _repository;
@@ -20,6 +23,7 @@ namespace userManagerApplication.Controllers
             _configuration = configuration;
             _repository = repository;
         }
+
         
         public IActionResult Index()
         {
@@ -27,51 +31,24 @@ namespace userManagerApplication.Controllers
             //var token = HttpContext.Session.GetString("Token"); //Se descarta sesión por cookie
             string token = HttpContext.Request.Cookies["Token"];
 
-            if (token == null)
-                return RedirectToAction("Index", "Access");
+            //if (token == null)
+            //    return RedirectToAction("Index", "Access");
 
-            if (ValidateToken(token)) 
-            {
-                List<UserModel> users = _repository.GetAllUserAndRoles();
-                return View(users);
-            }
-            else
-            {
-                return RedirectToAction("Index", "Access");
-            }
-
-        }
-
-
-
-        public bool ValidateToken(string token)
-        {
-            if (!string.IsNullOrEmpty(token))
-            {
-                // Verifica y decodifica el token
-                var tokenHelper = new TokenHelper(_configuration);
-                var tokenClaims = tokenHelper.ValidateToken(token);
-
-                if (tokenClaims == null)
-                {
-                    return false;
-                }
-
-                // Verifica si el token contiene el reclamo de rol "Admin"
-                if (!tokenClaims.Claims.Any(claim => claim.Type == "Admin" && claim.Value == "true"))
-                {
-                    // Si el usuario no tiene el rol "Admin", redirige al usuario a una página de acceso denegado u otra acción apropiada.
-                    return false;
-                }
-                return true;
-            }
-            else
-                return false;
-
+            //var tokenHelper = new TokenHelper(_configuration);
+            //if (tokenHelper.ValidateTokenAccess(token)) 
+            //{
+            List<UserModel> users = _repository.GetAllUserAndRoles();
+            return View(users);
+            //}
+            //else
+            //{
+            //    return RedirectToAction("Index", "Access");
+            //}
 
         }
 
-        [Authorize(Policy = IdentityData.AdminUserPolicyName)]
+
+        [Authorize(Policy = "AdminPolicy")]
         [HttpGet]
         public IActionResult GetUserData(int id)
         {
@@ -102,7 +79,7 @@ namespace userManagerApplication.Controllers
             return Json(response);
         }
 
-        [Authorize(Policy = IdentityData.AdminUserPolicyName)]
+        
         [HttpPut]
         public IActionResult UpdateUser([FromBody]UserModel user)
         {
@@ -113,7 +90,7 @@ namespace userManagerApplication.Controllers
                 if (user != null)
                 {
                     var userOldData = _repository.Get(user.IdUser);
-                    userOldData.Status = user.Status == "Active" ? true : false;
+                    userOldData.Status = user.StatusName == "Active" ? true : false;
                     userOldData.Email = user.Email;
                     userOldData.IdRole = Convert.ToInt16(user.IdRole);
                     userOldData.Phone = user.Phone;
@@ -143,7 +120,6 @@ namespace userManagerApplication.Controllers
 
         }
 
-        [Authorize(Policy = IdentityData.AdminUserPolicyName)]
         [HttpPut]
         public IActionResult InactiveUser([FromBody] InactiveUserModel model)
         {
@@ -164,7 +140,6 @@ namespace userManagerApplication.Controllers
             return Json(response);
         }
 
-        [Authorize(Policy = IdentityData.AdminUserPolicyName)]
         [HttpPost]
         public IActionResult AddUser([FromBody] UserModel model)
         {

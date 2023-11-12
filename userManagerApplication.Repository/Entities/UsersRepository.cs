@@ -33,7 +33,7 @@ namespace userManagerApplication.Repository.Entities
                     Name = user.Name,
                     Phone = user.Phone == null ? "No phone" : user.Phone,
                     RoleName = user.IdRoleNavigation == null ? "No role" : user.IdRoleNavigation.Name,
-                    Status = user.Status == true ? "Active" : "Inactive",
+                    StatusName = user.Status == true ? "Active" : "Inactive",
                     DateAdmision = user.DateAdmision,
                     InactiveDate = user.InactiveDate,
                 };
@@ -52,7 +52,7 @@ namespace userManagerApplication.Repository.Entities
                 Name = x.Name,
                 Phone = x.Phone == null ? "No phone" : x.Phone,
                 RoleName = x.IdRoleNavigation == null ? "No role" : x.IdRoleNavigation.Name,
-                Status = x.Status == true ? "Active" : "Inactive",
+                StatusName = x.Status == true ? "Active" : "Inactive",
                 DateAdmision = x.DateAdmision,
                 InactiveDate = x.InactiveDate
             }).ToList();
@@ -75,8 +75,10 @@ namespace userManagerApplication.Repository.Entities
                     LastName = user.LastName,
                     Name = user.Name,
                     Phone = user.Phone == null ? "No phone" : user.Phone,
+                    IdRole = user.IdRole,
                     RoleName = user.IdRoleNavigation == null ? "No role" : user.IdRoleNavigation.Name,
-                    Status = user.Status == true ? "Active" : "Inactive",
+                    Status = (bool)(user.Status == null ? false : user.Status),
+                    StatusName = user.Status == true ? "Active" : "Inactive",
                     DateAdmision = user.DateAdmision,
                     InactiveDate = user.InactiveDate,
                 };

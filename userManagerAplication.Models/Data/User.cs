@@ -25,5 +25,7 @@ public partial class User
 
     public int? IdRole { get; set; }
 
+    public virtual ICollection<AccessScreen> AccessScreens { get; set; } = new List<AccessScreen>();
+
     public virtual UsersRole? IdRoleNavigation { get; set; }
 }

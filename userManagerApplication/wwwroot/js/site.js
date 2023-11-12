@@ -6,17 +6,17 @@
 //reusable fetch call
 function functionFetch(url, data, methodType, funcSuccess) { //funcSuccess = return function, data = {object}
 
-    var requestOptions = null;
-    if (Object.keys(data).length > 0) {
-
-        requestOptions = {
-            method: methodType,
-            headers: {
-                'Content-Type': 'application/json',
-                //'Authorization': 'Bearer ' + token
-            },
-            body: JSON.stringify(data)
+    var requestOptions = {
+        method: methodType,
+        headers: {
+            'Content-Type': 'application/json',
+            //'Authorization': 'Bearer ' + token
+        },
+         //body: JSON.stringify(data)
         };
+
+    if (methodType !== 'GET') {
+        requestOptions.body = JSON.stringify(data);
     }
 
     fetch(url, requestOptions)
@@ -94,3 +94,32 @@ function alertAnimatedCustom(message, icon = 'success', title = 'Alert') {
         }
     })
 }
+
+
+//Get user pages
+function getUserPages() {
+
+    functionFetch("/Pages/GetAllUserPages/", {}, "GET", successGetUserPages);
+}
+
+function successGetUserPages(data) {
+    if (data.success) {
+
+        var lstScreen = data.data;
+        var menu = document.querySelector(".sidenav");
+        lstScreen.forEach(function (item) {
+
+            var li = document.createElement("li");
+            var a = document.createElement("a");
+
+            a.setAttribute("href", item.url);
+            a.textContent = item.title;
+            li.appendChild(a);
+            menu.appendChild(li);
+        });
+    }
+    else
+        alertAnimatedCustom(data.message, 'error', 'An error occurred');
+}
+
+getUserPages();

@@ -11,10 +11,13 @@ namespace userManagerApplication.Repository.Interfaces
     {
         IEnumerable<TEntity> GetAll();
         TEntity Get(int id);
-        TEntity Find(Expression<Func<TEntity,bool>> filter);
+        IEnumerable<TEntity> Find(Expression<Func<TEntity,bool>> filter, string? include);
         void Add(TEntity data);
+        void AddList(IEnumerable<TEntity> data);
         void Delete(int id);
+        void DeleteList(IEnumerable<TEntity> dataList);
         void Update(TEntity data);
+        void UpdateList(IEnumerable<TEntity> data);
         void Save();
 
     }

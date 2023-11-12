@@ -17,16 +17,22 @@
 
 </head>
 <body>
+
+    @*check if it is the login screen*@
+    @{
+        var isLoginPage = ViewContext.RouteData.Values["controller"].ToString() == "Access" && ViewContext.RouteData.Values["action"].ToString() == "Index";
+    }
+
     <header>
-        <label class="lblMenu">Menu</label>
-        <nav class="navbarCustom">
-            <ul class="sidenav">
-                <li><a class="active" href="#home">Home</a></li>
-                <li><a href="#news">News</a></li>
-                <li><a href="#contact">Contact</a></li>
-                <li><a href="#about">About</a></li>
-            </ul>
-        </nav>
+        <div @(isLoginPage == true ? "style=display:none" : "")>
+            <label class="lblMenu">Menu</label>
+            <nav class="navbarCustom">
+                <ul class="sidenav"></ul>
+            </nav>
+        </div>
+
+        <div class="navbarCustom" style="background-color:black;" @(isLoginPage == true ? "" : "style=display:none")></div>
+
     </header>
 
     <div class="container">

@@ -24,24 +24,24 @@ public partial class UserManagerAplicationContext : DbContext
     public virtual DbSet<UsersRole> UsersRoles { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {        
+    {
         //optionsBuilder.UseSqlServer("Server=LAPTOP-TF5M9SUU;Database=UserManagerAplication;Trusted_Connection=True;TrustServerCertificate=True;");
     } 
-
+ 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<AccessScreen>(entity =>
         {
-            entity
-                .HasNoKey()
-                .ToTable("AccessScreen");
+            entity.HasKey(e => e.Id).HasName("PK__AccessSc__3214EC0715B77227");
 
-            entity.HasOne(d => d.IdScreenNavigation).WithMany()
+            entity.ToTable("AccessScreen");
+
+            entity.HasOne(d => d.IdScreenNavigation).WithMany(p => p.AccessScreens)
                 .HasForeignKey(d => d.IdScreen)
                 .HasConstraintName("FK__AccessScr__IdScr__2B3F6F97");
 
-            entity.HasOne(d => d.IdUserNavigation).WithMany()
+            entity.HasOne(d => d.IdUserNavigation).WithMany(p => p.AccessScreens)
                 .HasForeignKey(d => d.IdUser)
                 .HasConstraintName("FK__AccessScr__IdUse__2A4B4B5E");
         });
@@ -52,6 +52,7 @@ public partial class UserManagerAplicationContext : DbContext
 
             entity.Property(e => e.CreationDate).HasColumnType("datetime");
             entity.Property(e => e.Name).IsUnicode(false);
+            entity.Property(e => e.Url).IsUnicode(false);
         });
 
         modelBuilder.Entity<User>(entity =>

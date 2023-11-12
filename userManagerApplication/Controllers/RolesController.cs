@@ -1,10 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using userManagerAplication.Models.Data;
 using userManagerApplication.Models;
 using userManagerApplication.Repository.Interfaces;
 
 namespace userManagerApplication.Controllers
 {
+    //[Authorize(Policy = IdentityData.AdminUserPolicyName)]
+    [Authorize(Policy = "AdminPolicy")]
+
     public class RolesController : Controller
     {
         private readonly IGenericRepository<UsersRole> _repository;

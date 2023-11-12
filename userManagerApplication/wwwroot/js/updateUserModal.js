@@ -1,4 +1,5 @@
 ﻿let userId = 0;
+let modalUserPagesInitialize = null;
 
 document.addEventListener("DOMContentLoaded", function () {
     //var updateUserModal = document.getElementById("updateUserModal");
@@ -11,7 +12,11 @@ document.addEventListener("DOMContentLoaded", function () {
     //Initialize modal updateUser
     let modalUpdateUser = document.getElementById('updateUserModal');
     modalUpdateUserInitialize = new bootstrap.Modal(modalUpdateUser);
-});
+
+    let modalUserPages = document.getElementById('userPagesModal');
+    modalUserPagesInitialize = new bootstrap.Modal(modalUserPages);
+
+}); 
 
 function openModalUpdateUser(idUser) {        
     modalUpdateUserInitialize.show();
@@ -26,6 +31,7 @@ function getAllRoles() {
 function successGetAllRoles(data) {
     if (data.success) {
         let selectRoles = document.getElementById("selRoleUser");
+        selectRoles.innerHTML = ''; //empty select
 
         for (var i = 0; i < data.data.length; i++) {            
             var option = document.createElement('option');
@@ -113,7 +119,7 @@ function successUpdateUserData(data) {
             RoleName: dataUserUpdated.roleName,
             DateAdmision: dataUserUpdated.dateAdmision,
             InactiveDate: dataUserUpdated.inactiveDate,
-            Status: dataUserUpdated.status,
+            StatusName: dataUserUpdated.statusName,
         };
 
         updateRowDataTable(tblUsers, dataUserUpdated.idUser, objUser, true);
@@ -159,6 +165,15 @@ function successAddUserData(data) {
         alertAnimatedCustom(data.message, 'error', 'An error occurred');
     }
 }
+
+
+/* edit user pages */
+document.getElementById("btnUserPages").addEventListener("click", function () {   
+    document.getElementById('editUserPagesForm').reset();
+    modalUpdateUserInitialize.hide();
+    modalUserPagesInitialize.show();
+    getUserAccessPages();    
+});
 
 
 
